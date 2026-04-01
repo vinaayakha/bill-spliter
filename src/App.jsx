@@ -13,7 +13,7 @@ const ITEMS = [
   { id: 10, name: "Soda", qty: 2, price: 69, total: 138, isPitcher: false },
   { id: 11, name: "Hefeweizen [m] (500ml Mug)", qty: 1, price: 549, total: 549, isPitcher: false },
   { id: 12, name: "Korean Chilli Chicken", qty: 1, price: 599, total: 599, isPitcher: false },
-  { id: 13, name: "Mie Goreng (Veg)", qty: 2, price: 499, total: 998, isPitcher: false },
+  { id: 13, name: "Mie Goreng (Veg)", qty: 2, price: 499, total: 998, isPitcher: true },
   { id: 14, name: "Mushroom Add On", qty: 1, price: 79, total: 79, isPitcher: false },
 ];
 
