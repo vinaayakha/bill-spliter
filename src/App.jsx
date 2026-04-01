@@ -6,14 +6,14 @@ const ITEMS = [
   { id: 3, name: "Whisky Sour (Glass)", qty: 1, price: 699, total: 699, isPitcher: false },
   { id: 4, name: "Mie Goreng (Grilled Chicken)", qty: 1, price: 628, total: 628, isPitcher: false },
   { id: 5, name: "Crispy Corn", qty: 1, price: 349, total: 349, isPitcher: false },
-  { id: 6, name: "New England IPA (500ml Mug)", qty: 3, price: 549, total: 1647, isPitcher: false },
+  { id: 6, name: "New England IPA (500ml Mug)", qty: 3, price: 549, total: 1647, isPitcher: true },
   { id: 7, name: "New England IPA (Pitcher 1.5L)", qty: 2, price: 1449, total: 2898, isPitcher: true },
   { id: 8, name: "Fresh Lime", qty: 1, price: 129, total: 129, isPitcher: false },
   { id: 9, name: "Virgin Mojito", qty: 1, price: 299, total: 299, isPitcher: false },
   { id: 10, name: "Soda", qty: 2, price: 69, total: 138, isPitcher: false },
   { id: 11, name: "Hefeweizen [m] (500ml Mug)", qty: 1, price: 549, total: 549, isPitcher: false },
   { id: 12, name: "Korean Chilli Chicken", qty: 1, price: 599, total: 599, isPitcher: false },
-  { id: 13, name: "Mie Goreng (Veg)", qty: 2, price: 499, total: 998, isPitcher: true },
+  { id: 13, name: "Mie Goreng (Veg)", qty: 2, price: 499, total: 998, isPitcher: false },
   { id: 14, name: "Mushroom Add On", qty: 1, price: 79, total: 79, isPitcher: false },
 ];
 
@@ -21,16 +21,18 @@ const SUBTOTAL = 10810;
 const SGST = 89.20;
 const CGST = 89.20;
 const ROUND_OFF = -0.40;
-const GRAND_TOTAL = 10988;
+const BILL_TOTAL = 10988;
+const DISCOUNT = 969;
+const GRAND_TOTAL = 10019;
 
 const PARTICIPANTS = [
   "Vinayak", "Prasun", "Vinamara", "Shashank",
-  "Nikhil", "Priyanka", "Nitesh", "Awadh", "Sohinee"
+  "Nikhil", "Priyanka", "Nitesh", "Awadh", "Sohinee","Kailash","Vishal"
 ];
 
 const COLORS = [
   "#1a73e8", "#e8453c", "#f09300", "#0b8043",
-  "#7b1fa2", "#c2185b", "#00838f", "#558b2f", "#d84315"
+  "#7b1fa2", "#c2185b", "#00838f", "#558b2f", "#d84315","#5e35b1", "#039be5",
 ];
 
 const FRACTION_OPTIONS = [
@@ -98,13 +100,12 @@ export default function App() {
         contrib[p] += getPersonShare(p, item);
       });
     });
+    // Scale each person's share proportionally so totals sum to GRAND_TOTAL (after discount)
     const totalSelected = Object.values(contrib).reduce((a, b) => a + b, 0);
     if (totalSelected > 0) {
-      const taxTotal = SGST + CGST + ROUND_OFF;
+      const scaleFactor = GRAND_TOTAL / totalSelected;
       PARTICIPANTS.forEach(p => {
-        if (contrib[p] > 0) {
-          contrib[p] += (contrib[p] / totalSelected) * taxTotal;
-        }
+        contrib[p] = contrib[p] * scaleFactor;
       });
     }
     return contrib;
@@ -153,7 +154,7 @@ export default function App() {
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: "16px", fontWeight: 600, color: "#202124" }}>Bill Split — 27 Mar 2026</div>
-          <div style={{ fontSize: "11px", color: "#5f6368" }}>Bill #12717 · Grand Total ₹{GRAND_TOTAL.toLocaleString()}</div>
+          <div style={{ fontSize: "11px", color: "#5f6368" }}>Bill #12717 · Paid ₹{GRAND_TOTAL.toLocaleString()} <span style={{color:"#c5221f"}}>(₹{DISCOUNT} discount)</span></div>
         </div>
       </div>
 
@@ -253,12 +254,26 @@ export default function App() {
                 </div>
               ))}
               <div style={{
+                display: "flex", justifyContent: "space-between", padding: "3px 0",
+                fontSize: "12px", color: "#5f6368", fontFamily: "'Roboto Mono', monospace",
+                borderTop: "1px solid #dadce0", marginTop: "4px", paddingTop: "6px",
+              }}>
+                <span>Bill Total</span><span>₹{BILL_TOTAL.toLocaleString()}</span>
+              </div>
+              <div style={{
+                display: "flex", justifyContent: "space-between", padding: "3px 0",
+                fontSize: "12px", color: "#137333", fontFamily: "'Roboto Mono', monospace",
+                fontWeight: 600,
+              }}>
+                <span>Discount</span><span>-₹{DISCOUNT.toLocaleString()}</span>
+              </div>
+              <div style={{
                 display: "flex", justifyContent: "space-between", padding: "10px 0 4px",
                 fontSize: "18px", fontWeight: 700, color: "#202124",
                 borderTop: "2px solid #202124", marginTop: "8px",
                 fontFamily: "'Roboto Mono', monospace",
               }}>
-                <span>Grand Total</span><span>₹{GRAND_TOTAL.toLocaleString()}</span>
+                <span>Amount Paid</span><span>₹{GRAND_TOTAL.toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -445,7 +460,7 @@ export default function App() {
                 }} />
               </tr>
 
-              {/* Tax row */}
+              {/* Tax & Discount row */}
               <tr style={{ background: "#fef7e0" }}>
                 <td style={{
                   position: "sticky", left: 0, zIndex: 5,
@@ -458,16 +473,16 @@ export default function App() {
                   background: "#fef7e0",
                   borderRight: "2px solid #e0e0e0",
                   padding: "8px 10px", fontWeight: 600, color: "#e37400", fontSize: "12px",
-                }}>GST (SGST 2.5% + CGST 2.5%)</td>
+                }}>Tax + Discount Applied</td>
                 <td style={{
                   padding: "8px 10px", textAlign: "right",
                   fontFamily: "'Roboto Mono', monospace",
                   fontSize: "12px", fontWeight: 600, color: "#e37400",
-                }}>₹{(SGST + CGST).toFixed(0)}</td>
+                }}>-₹{DISCOUNT}</td>
                 <td colSpan={PARTICIPANTS.length} style={{
                   padding: "8px 10px", fontSize: "11px",
                   color: "#b06000", textAlign: "center",
-                }}>Distributed proportionally</td>
+                }}>Tax & discount scaled proportionally per share</td>
               </tr>
 
               {/* Total row */}
@@ -601,8 +616,9 @@ export default function App() {
             boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
           }}>
             <div>
-              <div style={{ fontSize: "12px", color: "#5f6368", textTransform: "uppercase", letterSpacing: "0.5px" }}>Grand Total</div>
+              <div style={{ fontSize: "12px", color: "#5f6368", textTransform: "uppercase", letterSpacing: "0.5px" }}>Amount Paid</div>
               <div style={{ fontFamily: "'Roboto Mono', monospace", fontSize: "22px", fontWeight: 700 }}>₹{GRAND_TOTAL.toLocaleString()}</div>
+              <div style={{ fontSize: "10px", color: "#137333", marginTop: "2px" }}>After ₹{DISCOUNT} discount</div>
             </div>
             <div style={{ textAlign: "right" }}>
               <div style={{ fontSize: "12px", color: "#5f6368", textTransform: "uppercase", letterSpacing: "0.5px" }}>Assigned</div>
